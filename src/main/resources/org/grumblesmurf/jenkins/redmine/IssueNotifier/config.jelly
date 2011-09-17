@@ -6,4 +6,10 @@
   <f:entry title="Redmine API key">
     <f:textbox name="redmineNotifier.apiKey" value="${instance.apiKey}" />
   </f:entry>
+  <f:entry title="Status ID for referenced issues">
+    <f:textbox name="redmineNotifier.referencedStatus" value="${instance.referencedStatus}" default="2" />
+  </f:entry>
+  <f:entry title="Status ID for closed issues">
+    <f:textbox name="redmineNotifier.closedStatus" value="${instance.closedStatus}" default="3" />
+  </f:entry>
 </j:jelly>
