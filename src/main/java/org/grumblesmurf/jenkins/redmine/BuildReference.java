@@ -1,9 +1,11 @@
 package org.grumblesmurf.jenkins.redmine;
 
+import com.google.common.base.Predicate;
 import hudson.model.AbstractBuild;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.RepositoryBrowser;
 import jenkins.model.Jenkins;
+import static org.grumblesmurf.jenkins.redmine.BuildReference.Type.CLOSED;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -12,6 +14,12 @@ import java.net.URL;
 public class BuildReference
 {
     final Type type;
+    static final Predicate<BuildReference> IS_CLOSED = new Predicate<BuildReference>()
+    {
+        public boolean apply(BuildReference input) {
+            return input.type == CLOSED;
+        }
+    };
     final AbstractBuild<?, ?> mentionedBuild;
     private final ChangeLogSet.Entry change;
 

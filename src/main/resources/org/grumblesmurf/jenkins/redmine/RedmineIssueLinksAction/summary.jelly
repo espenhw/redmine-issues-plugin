@@ -1,0 +1,21 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <t:summary icon="notepad.png">
+    <j:if test="${it.hasReferences()}">
+      Referenced issues
+      <ul>
+        <j:forEach items="${it.references()}" var="issue">
+          <li><a href="${it.redmineUrl}/issues/${issue}">#${issue}</a></li>
+        </j:forEach>
+      </ul>
+    </j:if>
+    <j:if test="${it.hasCloses()}">
+      Closed issues
+      <ul>
+        <j:forEach items="${it.closes()}" var="issue">
+          <li><a href="${it.redmineUrl}/issues/${issue}">#${issue}</a></li>
+        </j:forEach>
+      </ul>
+    </j:if>
+  </t:summary>
+</j:jelly>

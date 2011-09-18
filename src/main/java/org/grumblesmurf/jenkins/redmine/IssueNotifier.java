@@ -73,6 +73,10 @@ public class IssueNotifier extends Notifier
         debug(console, "Considering changes from build %s to %s", lastStableBuild.number, build.number);
 
         Multimap<Integer, BuildReference> buildReferences = findAllChangesBetween(lastStableBuild, build, console);
+
+        if (!buildReferences.isEmpty()) {
+            build.getActions().add(new RedmineIssueLinksAction(redmineUrl, buildReferences));
+        }
         
         try {
             for (Map.Entry<Integer, Collection<BuildReference>> entry : buildReferences.asMap().entrySet()){

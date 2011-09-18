@@ -1,8 +1,6 @@
 package org.grumblesmurf.jenkins.redmine;
 
-import com.google.common.base.Predicate;
 import static com.google.common.collect.Iterables.any;
-import static org.grumblesmurf.jenkins.redmine.BuildReference.Type.CLOSED;
 import org.redmine.ta.AuthenticationException;
 import org.redmine.ta.NotFoundException;
 import org.redmine.ta.RedmineException;
@@ -15,12 +13,6 @@ import java.util.Collection;
 
 public class Redmine
 {
-    private static final Predicate<BuildReference> IS_CLOSED = new Predicate<BuildReference>()
-    {
-        public boolean apply(BuildReference input) {
-            return input.type == CLOSED;
-        }
-    };
     private final RedmineManager mgr;
     private final Integer closedStatus;
     private final Integer referencedStatus;
@@ -36,7 +28,7 @@ public class Redmine
         Issue issue = new Issue();
         issue.setId(issueId);
 
-        if (any(references, IS_CLOSED)) {
+        if (any(references, BuildReference.IS_CLOSED)) {
             issue.setStatusId(closedStatus);
         } else {
             issue.setStatusId(referencedStatus);
