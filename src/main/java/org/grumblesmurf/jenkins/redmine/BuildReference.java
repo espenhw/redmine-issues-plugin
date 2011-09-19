@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import hudson.model.AbstractBuild;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.RepositoryBrowser;
+import hudson.scm.SubversionChangeLogSet;
 import jenkins.model.Jenkins;
 import static org.grumblesmurf.jenkins.redmine.BuildReference.Type.CLOSED;
 
@@ -30,7 +31,11 @@ public class BuildReference
     }
 
     public String commitId() {
-        return change.getCommitId();
+        String commitId = change.getCommitId();
+        if (commitId == null && change instanceof SubversionChangeLogSet.LogEntry) {
+            commitId = String.valueOf(((SubversionChangeLogSet.LogEntry) change).getRevision());
+        }
+        return commitId;
     }
 
     public URL changeSetLink() {
