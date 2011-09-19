@@ -40,4 +40,9 @@
       <version>1.31</version>
     </dependency>
   </dependencies>
+  <scm>
+    <connection>scm:git:git://github.com/espenhw/redmine-issues-plugin.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:espenhw/redmine-issues-plugin.git</developerConnection>
+    <url>http://github.com/espenhw/redmine-issues-plugin/</url>
+  </scm>
 </project>
