@@ -5,7 +5,7 @@
       Referenced issues
       <ul>
         <j:forEach items="${it.references()}" var="issue">
-          <li><a href="${it.redmineUrl}/issues/${issue}">#${issue}</a></li>
+          <li><a href="${it.redmineUrl}/issues/${issue.id}">#${issue.id}: ${issue.subject}</a></li>
         </j:forEach>
       </ul>
     </j:if>
@@ -13,7 +13,7 @@
       Closed issues
       <ul>
         <j:forEach items="${it.closes()}" var="issue">
-          <li><a href="${it.redmineUrl}/issues/${issue}">#${issue}</a></li>
+          <li><a href="${it.redmineUrl}/issues/${issue.id}">#${issue.id}: ${issue.subject}</a></li>
         </j:forEach>
       </ul>
     </j:if>

@@ -16,9 +16,11 @@ public class Redmine
     private final RedmineManager mgr;
     private final Integer closedStatus;
     private final Integer referencedStatus;
+    public final String baseUrl;
 
-    public Redmine(RedmineManager redmineManager, Integer referencedStatus, Integer closedStatus) {
-        mgr = redmineManager;
+    public Redmine(String baseUrl, String apiKey, Integer referencedStatus, Integer closedStatus) {
+        this.baseUrl = baseUrl;
+        mgr = new RedmineManager(baseUrl, apiKey);
         this.closedStatus = closedStatus;
         this.referencedStatus = referencedStatus;
     }
@@ -56,5 +58,11 @@ public class Redmine
         }
         issue.setNotes(notes.toString());
         mgr.updateIssue(issue);
+    }
+
+    public String titleOf(Integer issueId)
+          throws IOException, AuthenticationException, RedmineException, NotFoundException {
+        Issue issue = mgr.getIssueById(issueId);
+        return issue.getSubject();
     }
 }

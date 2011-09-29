@@ -41,14 +41,14 @@ private showIssues(Collection<AbstractBuild> builds) {
     def issues = issueReferencesFrom(build)
     if (!issues.isEmpty()) {
       hasIssues = true
-      h2(build.project.displayName + build.displayName)
+      h2(build.project.displayName + " " + build.displayName)
       show(issues)
     }
     for (AbstractBuild contributingBuild in my.contributingBuilds(build)) {
       issues = issueReferencesFrom(contributingBuild)
       if (!issues.isEmpty()) {
         hasIssues = true
-        h3(contributingBuild.project.displayName + contributingBuild.displayName)
+        h3(contributingBuild.project.displayName + " " + contributingBuild.displayName)
         show(issues)
       }
     }
@@ -87,7 +87,7 @@ def issueReferencesFrom(AbstractBuild build) {
   def closes = []
   if (action) {
     for (issue in action.closes()) {
-      closes << [ href: linkTo(issue, action.redmineUrl), text: "#$issue" ]
+      closes << [ href: linkTo(issue.id, action.redmineUrl), text: "#$issue.id: " + issue.subject ]
     }
   }
   return new TreeSet(closes)

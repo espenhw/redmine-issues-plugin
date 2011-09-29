@@ -18,7 +18,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.redmine.ta.AuthenticationException;
 import org.redmine.ta.NotFoundException;
 import org.redmine.ta.RedmineException;
-import org.redmine.ta.RedmineManager;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -42,8 +41,7 @@ public class IssueNotifier extends Notifier
         this.referencedStatus = referencedStatus;
         this.closedStatus = closedStatus;
         commitParser = new CommitMessageParser();
-        redmine = new Redmine(new RedmineManager(redmineUrl, apiKey),
-                              Integer.parseInt(referencedStatus),
+        redmine = new Redmine(redmineUrl, apiKey, Integer.parseInt(referencedStatus),
                               Integer.parseInt(closedStatus));
     }
 
@@ -74,10 +72,7 @@ public class IssueNotifier extends Notifier
 
         Multimap<Integer, BuildReference> buildReferences = findAllChangesBetween(lastStableBuild, build, console);
 
-        if (!buildReferences.isEmpty()) {
-            build.getActions().add(new RedmineIssueLinksAction(redmineUrl, buildReferences));
-        }
-        
+
         try {
             for (Map.Entry<Integer, Collection<BuildReference>> entry : buildReferences.asMap().entrySet()){
                 try {
@@ -89,6 +84,17 @@ public class IssueNotifier extends Notifier
                     console.println(e.getMessage());
                 } catch (NotFoundException e) {
                     console.println("ERROR: Referenced issue #" + entry.getKey() + " not found");
+                }
+            }
+
+            if (!buildReferences.isEmpty()) {
+                try {
+                    build.getActions().add(new RedmineIssueLinksAction(redmine, buildReferences));
+                } catch (RedmineException e) {
+                    console.println("ERROR: Redmine denied fetch");
+                    console.println(e.getMessage());
+                } catch (NotFoundException e) {
+                    // Was reported above
                 }
             }
         } catch (AuthenticationException e) {

@@ -5,25 +5,30 @@ import com.google.common.collect.Multimap;
 import hudson.model.Action;
 import static org.grumblesmurf.jenkins.redmine.BuildReference.Type.CLOSED;
 import static org.grumblesmurf.jenkins.redmine.BuildReference.Type.REFERENCED;
+import org.redmine.ta.AuthenticationException;
+import org.redmine.ta.NotFoundException;
+import org.redmine.ta.RedmineException;
 
+import java.io.IOException;
 import java.util.*;
 
 public class RedmineIssueLinksAction implements Action
 {
     public final String redmineUrl;
-    public final Map<BuildReference.Type, Set<Integer>> issues;
+    public final HashMap<BuildReference.Type, Set<Issue>> issues;
 
-    public RedmineIssueLinksAction(String redmineUrl, Multimap<Integer, BuildReference> buildReferences) {
-        this.redmineUrl = redmineUrl;
-        this.issues = new HashMap<BuildReference.Type, Set<Integer>>();
-        issues.put(REFERENCED, new TreeSet<Integer>());
-        issues.put(CLOSED, new TreeSet<Integer>());
+    public RedmineIssueLinksAction(Redmine redmine, Multimap<Integer, BuildReference> buildReferences)
+          throws IOException, AuthenticationException, RedmineException, NotFoundException {
+        this.redmineUrl = redmine.baseUrl;
+        this.issues = new HashMap<BuildReference.Type, Set<Issue>>();
+        issues.put(REFERENCED, new TreeSet<Issue>());
+        issues.put(CLOSED, new TreeSet<Issue>());
         for (Map.Entry<Integer, Collection<BuildReference>> e : buildReferences.asMap().entrySet()) {
             Integer issueId = e.getKey();
             if (any(e.getValue(), BuildReference.IS_CLOSED)) {
-                issues.get(CLOSED).add(issueId);
+                issues.get(CLOSED).add(new Issue(issueId, redmine.titleOf(issueId)));
             } else {
-                issues.get(REFERENCED).add(issueId);
+                issues.get(REFERENCED).add(new Issue(issueId, redmine.titleOf(issueId)));
             }
         }
     }
@@ -32,7 +37,7 @@ public class RedmineIssueLinksAction implements Action
         return !references().isEmpty();
     }
 
-    public Set<Integer> references() {
+    public Set<Issue> references() {
         return issues.get(REFERENCED);
     }
 
@@ -40,7 +45,7 @@ public class RedmineIssueLinksAction implements Action
         return !closes().isEmpty();
     }
 
-    public Set<Integer> closes() {
+    public Set<Issue> closes() {
         return issues.get(CLOSED);
     }
 
