@@ -1,0 +1,17 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:section title="Redmine">
+    <f:entry title="Redmine URL">
+      <f:textbox name="redmineNotifier.redmineUrl" value="${descriptor.redmineUrl}" />
+    </f:entry>
+    <f:entry title="Redmine API key">
+      <f:textbox name="redmineNotifier.apiKey" value="${descriptor.apiKey}" />
+    </f:entry>
+    <f:entry title="Status ID for referenced issues">
+      <f:textbox name="redmineNotifier.referencedStatus" value="${descriptor.referencedStatus}" default="2" />
+    </f:entry>
+    <f:entry title="Status ID for closed issues">
+      <f:textbox name="redmineNotifier.closedStatus" value="${descriptor.closedStatus}" default="3" />
+    </f:entry>
+  </f:section>
+</j:jelly>
