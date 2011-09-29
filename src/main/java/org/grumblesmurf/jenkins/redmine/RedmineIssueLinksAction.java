@@ -14,7 +14,6 @@ public class RedmineIssueLinksAction implements Action
     public final Map<BuildReference.Type, Set<Integer>> issues;
 
     public RedmineIssueLinksAction(String redmineUrl, Multimap<Integer, BuildReference> buildReferences) {
-        
         this.redmineUrl = redmineUrl;
         this.issues = new HashMap<BuildReference.Type, Set<Integer>>();
         issues.put(REFERENCED, new TreeSet<Integer>());
