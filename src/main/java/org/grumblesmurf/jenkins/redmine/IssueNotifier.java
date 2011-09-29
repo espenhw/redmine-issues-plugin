@@ -31,8 +31,8 @@ public class IssueNotifier extends Notifier
     public final String apiKey;
     public final String referencedStatus;
     public final String closedStatus;
-    private final CommitMessageParser commitParser;
-    private final Redmine redmine;
+    private transient final CommitMessageParser commitParser;
+    private transient final Redmine redmine;
 
     @DataBoundConstructor
     public IssueNotifier(String redmineUrl, String apiKey, String referencedStatus, String closedStatus) {
