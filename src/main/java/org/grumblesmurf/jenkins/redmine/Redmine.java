@@ -1,6 +1,5 @@
 package org.grumblesmurf.jenkins.redmine;
 
-import static com.google.common.collect.Iterables.any;
 import org.redmine.ta.AuthenticationException;
 import org.redmine.ta.NotFoundException;
 import org.redmine.ta.RedmineException;
@@ -11,22 +10,26 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 
+import static com.google.common.collect.Iterables.any;
+
 public class Redmine
 {
-    private final RedmineManager mgr;
+    private RedmineManager mgr;
+    private final String baseUrl;
+    private final String apiKey;
     private final Integer closedStatus;
     private final Integer referencedStatus;
-    public final String baseUrl;
 
     public Redmine(String baseUrl, String apiKey, Integer referencedStatus, Integer closedStatus) {
         this.baseUrl = baseUrl;
-        mgr = new RedmineManager(baseUrl, apiKey);
+        this.apiKey = apiKey;
         this.closedStatus = closedStatus;
         this.referencedStatus = referencedStatus;
     }
 
-    public void addBuildReferencesToIssue(Integer issueId, int buildNumber, URL buildUrl, Collection<BuildReference> references)
-          throws IOException, RedmineException, AuthenticationException, NotFoundException {
+    public void addBuildReferencesToIssue(Integer issueId, int buildNumber, URL buildUrl,
+                                          Collection<BuildReference> references)
+        throws IOException, RedmineException, AuthenticationException, NotFoundException {
         Issue issue = new Issue();
         issue.setId(issueId);
 
@@ -51,18 +54,29 @@ public class Redmine
             }
             if (buildNumber != reference.buildNumber()) {
                 notes.append(" (in \"build ").append(reference.buildNumber()).append("\":")
-                      .append(reference.mentionedBuildUrl().toExternalForm())
-                      .append(")");
+                    .append(reference.mentionedBuildUrl().toExternalForm())
+                    .append(")");
             }
             notes.append("\n");
         }
         issue.setNotes(notes.toString());
-        mgr.updateIssue(issue);
+        getMgr().updateIssue(issue);
     }
 
     public String titleOf(Integer issueId)
-          throws IOException, AuthenticationException, RedmineException, NotFoundException {
-        Issue issue = mgr.getIssueById(issueId);
+        throws IOException, AuthenticationException, RedmineException, NotFoundException {
+        Issue issue = getMgr().getIssueById(issueId);
         return issue.getSubject();
+    }
+
+    private RedmineManager getMgr() {
+        if (mgr == null) {
+            mgr = new RedmineManager(baseUrl, apiKey);
+        }
+        return mgr;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
     }
 }

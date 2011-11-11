@@ -1,16 +1,17 @@
 package org.grumblesmurf.jenkins.redmine;
 
-import static com.google.common.collect.Iterables.any;
 import com.google.common.collect.Multimap;
 import hudson.model.Action;
-import static org.grumblesmurf.jenkins.redmine.BuildReference.Type.CLOSED;
-import static org.grumblesmurf.jenkins.redmine.BuildReference.Type.REFERENCED;
 import org.redmine.ta.AuthenticationException;
 import org.redmine.ta.NotFoundException;
 import org.redmine.ta.RedmineException;
 
 import java.io.IOException;
 import java.util.*;
+
+import static com.google.common.collect.Iterables.any;
+import static org.grumblesmurf.jenkins.redmine.BuildReference.Type.CLOSED;
+import static org.grumblesmurf.jenkins.redmine.BuildReference.Type.REFERENCED;
 
 public class RedmineIssueLinksAction implements Action
 {
@@ -19,7 +20,7 @@ public class RedmineIssueLinksAction implements Action
 
     public RedmineIssueLinksAction(Redmine redmine, Multimap<Integer, BuildReference> buildReferences)
           throws IOException, AuthenticationException, RedmineException, NotFoundException {
-        this.redmineUrl = redmine.baseUrl;
+        this.redmineUrl = redmine.getBaseUrl();
         this.issues = new HashMap<BuildReference.Type, Set<Issue>>();
         issues.put(REFERENCED, new TreeSet<Issue>());
         issues.put(CLOSED, new TreeSet<Issue>());
