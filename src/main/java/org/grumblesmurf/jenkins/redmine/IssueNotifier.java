@@ -28,13 +28,16 @@ import java.util.Map;
 
 public class IssueNotifier extends Notifier
 {
-    private transient final CommitMessageParser commitParser;
-    private transient final Redmine redmine;
+    public final String redmineUrl;
+    public final String apiKey;
+    public final String referencedStatus;
+    public final String closedStatus;
 
     public IssueNotifier(String redmineUrl, String apiKey, String referencedStatus, String closedStatus) {
-        commitParser = new CommitMessageParser();
-        redmine = new Redmine(redmineUrl, apiKey, Integer.parseInt(referencedStatus),
-                              Integer.parseInt(closedStatus));
+        this.redmineUrl = redmineUrl;
+        this.apiKey = apiKey;
+        this.referencedStatus = referencedStatus;
+        this.closedStatus = closedStatus;
     }
 
     public BuildStepMonitor getRequiredMonitorService() {
@@ -43,7 +46,7 @@ public class IssueNotifier extends Notifier
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
-          throws InterruptedException, IOException {
+        throws InterruptedException, IOException {
         PrintStream console = listener.getLogger();
 
         if (build.getResult().isWorseThan(Result.SUCCESS)) {
@@ -64,12 +67,13 @@ public class IssueNotifier extends Notifier
 
         Multimap<Integer, BuildReference> buildReferences = findAllChangesBetween(lastStableBuild, build, console);
 
-
         try {
-            for (Map.Entry<Integer, Collection<BuildReference>> entry : buildReferences.asMap().entrySet()){
+            Redmine redmine = getRedmine();
+            for (Map.Entry<Integer, Collection<BuildReference>> entry : buildReferences.asMap().entrySet()) {
                 try {
                     redmine.addBuildReferencesToIssue(entry.getKey(), build.number,
-                                                      new URL(new URL(Jenkins.getInstance().getRootUrl()), build.getUrl()),
+                                                      new URL(new URL(Jenkins.getInstance().getRootUrl()),
+                                                              build.getUrl()),
                                                       entry.getValue());
                 } catch (RedmineException e) {
                     console.println("ERROR: Redmine denied update of issue #" + entry.getKey());
@@ -115,6 +119,7 @@ public class IssueNotifier extends Notifier
         for (ChangeLogSet.Entry entry : build.getChangeSet()) {
             String message = entry.getMsg();
             debug(console, "Looking at %s", message);
+            CommitMessageParser commitParser = new CommitMessageParser();
             for (Integer issueId : commitParser.referencedIssueIdsIn(message)) {
                 buildReferences.put(issueId, new BuildReference(BuildReference.Type.REFERENCED, build, entry));
             }
@@ -136,6 +141,11 @@ public class IssueNotifier extends Notifier
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
+    private Redmine getRedmine() {
+        return new Redmine(redmineUrl, apiKey, Integer.parseInt(referencedStatus),
+                           Integer.parseInt(closedStatus));
+    }
+
     public static class DescriptorImpl extends BuildStepDescriptor<Publisher>
     {
         private String redmineUrl;
@@ -148,7 +158,8 @@ public class IssueNotifier extends Notifier
         }
 
         @Override
-        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+        public boolean configure(StaplerRequest req, JSONObject json)
+            throws FormException {
             redmineUrl = json.getString("redmineUrl");
             apiKey = json.getString("apiKey");
             referencedStatus = json.getString("referencedStatus");
@@ -158,7 +169,8 @@ public class IssueNotifier extends Notifier
         }
 
         @Override
-        public Publisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+        public Publisher newInstance(StaplerRequest req, JSONObject formData)
+            throws FormException {
             return new IssueNotifier(redmineUrl, apiKey, referencedStatus, closedStatus);
         }
 
